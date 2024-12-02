@@ -1,0 +1,551 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{kshp}[2024/11/30 журнал КШП-ОМД]
+
+%*******************
+% параметры
+%*******************
+
+\RequirePackage{xkeyval}
+
+\define@key{kshp}{year}{%
+  \newcommand{\kshpYear}{#1} % год
+}
+
+\define@key{kshp}{month}{%
+  \newcommand{\kshpMonth}{#1} % месяц
+}
+
+
+% Стиль по умолчанию = print (печатный номер)
+
+\RequirePackage[dvipsnames]{xcolor}
+
+\RequirePackage[most]{tcolorbox}
+\newtcolorbox{chapterbox}{colback=gray!25,
+                          colframe=black,
+                          sharp corners,
+                          halign=center,
+                          boxrule=0pt,
+                          bottomrule=3pt}
+
+\define@choicekey{kshp}{journal}[\val\kshptype]{print,electronic}[print]{%
+    \def\kshp@journal{\kshptype}
+}
+\setkeys{kshp}{journal=print}
+
+\DeclareOptionX*{
+    \PackageWarning{kshp}{Unknown option ‘\CurrentOption’}%
+}
+
+\ProcessOptionsX<kshp>
+
+
+\ifcase\kshp@journal
+    % case = 0 (journal == print)
+    %
+\or
+    % case = 1 (journal == electronic)
+    %
+\else
+\fi
+
+\newcommand{\kshpNameK}{Кузнечно-штамповочное производство}
+\newcommand{\kshpNameO}{Обработка материалов давлением}
+
+% цвета
+% серый фон для первой строки и линий
+\definecolor{colorTbGray}{HTML}{F4F4F4}
+% серый для биб ссылок
+\definecolor{colorBib}{HTML}{142196}
+
+%*******************
+% логирование
+%*******************
+\newwrite\myoutput
+\immediate\openout\myoutput=\jobname.data
+
+%*******************
+% размеры и поля
+%*******************
+\RequirePackage[paperheight=290mm,
+            paperwidth=210mm,
+            top=10mm,
+            bottom=10mm,
+            left=15mm,
+            right=15mm]{geometry}
+
+
+
+%*******************
+% шрифты
+%*******************
+% Языки
+%\RequirePackage{polyglossia}
+%\setmainlanguage[babelshorthands=true]{russian}
+%\setotherlanguages{english}
+\RequirePackage[english,russian]{babel}
+
+
+\RequirePackage[no-math]{fontspec}
+
+\setmainfont{Erewhon}
+\setromanfont{Erewhon}
+\usepackage[lining]{FiraSans}
+\usepackage{FiraMono} 
+
+\newfontfamily{\cyrillicfonttt}[Scale=MatchLowercase]{Fira Mono}
+
+\RequirePackage{microtype}
+
+%*******************
+% формулы
+%*******************
+\RequirePackage{amsmath}
+\RequirePackage[math-style=ISO]{unicode-math}
+\setmathfont[Scale=MatchLowercase, StylisticSet={3,4}]{Erewhon Math}
+
+
+% прямые начертания для констант, i и d
+\def\eu{\ensuremath{\mathrm{e}}}
+\def\iu{\ensuremath{\mathrm{i}}}
+\def\du{\ensuremath{\mathrm{d}}}
+
+% уменьшить вертикальные отступы в выключных формулах
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+
+% форматирование физ величин и чисел
+\RequirePackage{siunitx}
+\sisetup{detect-all, range-units = single, range-phrase= \text{--}, per-mode=symbol, output-decimal-marker = {,}}
+
+
+
+%*******************
+% графика
+%*******************
+
+% Пути к каталогам с изображениями
+\RequirePackage{graphicx} % Вставка картинок и дополнений
+\graphicspath{{images/}}
+\RequirePackage{tikz}
+
+
+%*******************
+% прочее
+%*******************
+\RequirePackage[nodisplayskipstretch]{setspace} % для управления межстрочным
+\def\setmainlinespread{\setstretch{1.1}}
+\RequirePackage{float} % Расширенное управление плавающими объектами
+\RequirePackage{placeins} % для \FloatBarrier 
+\RequirePackage{multicol} % Многоколоночная верстка
+\RequirePackage[labelformat=simple]{subcaption}
+\RequirePackage{lscape} % повернутые страницы
+
+% вставка пустой страницы
+\RequirePackage{afterpage}
+
+\newcommand\blankpage{%
+    \null
+    \thispagestyle{empty}%
+    %\addtocounter{page}{-1}%
+    \newpage}
+
+%*******************
+% Списки
+%*******************
+\RequirePackage{enumitem}
+% Используем короткое тире (endash) для ненумерованных списков
+\renewcommand{\labelitemi}{\normalfont{--}}
+
+\setlist{nosep, nolistsep, topsep=0pt, labelindent=*,leftmargin=*}
+
+
+\setlist[enumerate,1]{label = \arabic*.,
+ref = \arabic*}
+\setlist[enumerate,2]{label = \theenumi.\arabic*.,
+ref = \theenumi.\arabic*}
+\setlist[enumerate,3]{label = \arabic*.,
+ref = \theenumii.\arabic*}
+
+% счетчик кириллицей
+\AddEnumerateCounter{\asbuk}{\russian@alph}{щ}
+
+%*******************
+% стиль подписей к рисункам и таблицам
+%*******************
+\RequirePackage[labelfont={small,bf}, textfont={small}, labelsep=period]{caption}
+\captionsetup{justification=raggedright, singlelinecheck=false}
+
+\renewcommand\thesubfigure{\asbuk{subfigure})}
+
+%*******************
+% таблицы
+%*******************
+
+\RequirePackage{tabularray}
+\NewTblrTheme{kshp}{
+    %\SetTblrStyle{firsthead}{font=\bfseries}
+    \SetTblrStyle{caption-tag}{font=\small\bfseries}
+    \SetTblrStyle{caption-text}{font=\small}
+    \SetTblrStyle{contfoot-text}{font=\small}
+    \SetTblrStyle{conthead-text}{font=\small}
+}
+
+\DefTblrTemplate{caption-sep}{default}{.\enskip}
+\DefTblrTemplate{contfoot-text}{default}{Продолжение на следующей странице}
+\DefTblrTemplate{conthead-text}{default}{(Продолжение таблицы)}
+
+%*******************
+% Заголовки
+%*******************
+\RequirePackage[pagestyles,explicit]{titlesec}
+\RequirePackage{titletoc}
+
+% \titleformat{command}[shape]{format}{label}{sep}{before-code}[after-code]
+
+\titleformat{\chapter}[hang]
+{\Large\firamedium}
+{\begin{chapterbox}\raggedright\MakeUppercase{#1}\end{chapterbox}}
+{0pt}
+{\thispagestyle{main}}
+[]
+
+
+\titleformat{\section}[block]
+{\setstretch{1.1}\filcenter\normalfont\Large\firamedium}
+{#1}
+{0em}
+{}
+[]
+    
+\titleformat{\subsection}[block]
+{\color{black}\filcenter\bfseries\large}
+{#1}
+{0pt}
+{}
+[]
+
+% https://tex.stackexchange.com/questions/706891/titlesec-explicit-stops-formatting-of-subsubsection
+\setcounter{secnumdepth}{3}
+
+
+
+\titlespacing*{\section}
+    {0pt} % left
+    {3mm} % before
+    {1em} % after
+    
+% titlesec добавляет много сверху, убираем
+\titlespacing*{\chapter}
+    {0pt} % left
+    {-5mm} % before
+    {1em} % after
+    
+\titlespacing*{\subsection}
+{0pt} % left
+{4pt} % before
+{0pt} % after
+
+\titlespacing*{\subsubsection}
+{0pt} % left
+{8pt} % before
+{4pt} % after
+
+%*******************
+% Стили в оглавлении
+%*******************
+
+
+\titlecontents{chapter}
+[5mm]
+{\addvspace{1em}}
+{\small\bfseries\uppercase}
+{\small\bfseries\uppercase}%\hspace*{-9mm}
+{}[\medskip]
+
+
+\titlecontents{section}
+[0pt]
+{\raggedright\footnotesize\rmfamily}
+{}
+{}%\hspace*{-9mm}
+{\titlerule*[0.3pc]{.}\contentspage}[]
+
+
+
+%*******************
+% колонтитулы
+%*******************
+
+
+
+\newpagestyle{main}[\small]{
+    \setheadrule{0.6pt}%
+    \sethead[{\sffamily\firamedium\footnotesize \kshpYear{}. № \kshpMonth}]%               even-left
+            [{\sffamily\firamedium\footnotesize \MakeUppercase{\kshpNameK \hspace{5mm} \kshpNameO} }]%   even-center
+            [{\sffamily\firamedium\footnotesize \thepage}]%                              even-right
+            {{\sffamily\firamedium\footnotesize \thepage}}%                              odd-left
+            {{\sffamily\firamedium\footnotesize \MakeUppercase{\kshpNameK \hspace{5mm} \kshpNameO} }}%   odd-center
+            {{\sffamily\firamedium\footnotesize \kshpYear{}. № \kshpMonth}}%               odd-right
+  }
+
+
+
+%*********************
+% Библиография
+%*********************
+\RequirePackage[%
+backend=biber,
+bibencoding=utf8,
+style=gost-numeric,
+language=autobib,
+autolang=other,
+clearlang=true,
+sortcites=true,
+]{biblatex}
+
+\RequirePackage{csquotes}
+
+% Вначале выводим русскоязычныке источники по langid
+\DeclareSourcemap{
+    \maps[datatype=bibtex]{
+        \map{
+            \step[fieldsource=langid, match=russian, final]
+            \step[fieldset=presort, fieldvalue={a}]
+        }
+        \map{
+            \step[fieldsource=langid, notmatch=russian, final]
+            \step[fieldset=presort, fieldvalue={z}]
+        }
+    }
+}
+
+% Перенос длинных URL в библиографии
+\setcounter{biburllcpenalty}{7000}
+\setcounter{biburlucpenalty}{8000}
+
+% Запрет кодирования URL
+\DeclareFieldFormat{url}{%
+    \mkbibacro{URL}\addcolon\space
+    \href{#1}{\nolinkurl{\thefield{urlraw}}}}
+
+% Нумерация библиографии с точкой
+\renewcommand\@biblabel[1]{#1.}
+
+
+\renewcommand*{\bibfont}{\small}
+
+\defbibheading{kshpBibheading}{\begin{center}\large \bfseries Список литературы\end{center}}
+\defbibheading{kshpBibheadingEn}{\begin{center}\large \bfseries References\end{center}}
+
+% цвет квадратных скобок в биб ссылках, сами ссылки — см. citecolor в hyperref
+\AtEveryCite{\color{colorBib}}
+
+%*************
+% нумерация
+%*************
+\RequirePackage{chngcntr}
+\counterwithout{equation}{chapter}
+\counterwithout{figure}{chapter}
+\counterwithout{table}{chapter}
+
+%*******************
+% висяки и переносы
+%*******************
+\hyphenpenalty=750 % default = 50
+%\RequirePackage{lua-widow-control}
+%\lwcsetup{balanced}
+
+%\clubpenalty=8000
+%\widowpenalty=8000
+%подавление переносов между страницами
+\brokenpenalty=8000\relax
+
+
+
+% автоматизация запрета на отрыв предлогов
+\RequirePackage{luavlna}
+\singlechars{russian}{ВСАКИОУвсакиоу}
+
+
+
+%*******************
+% Окружения и макросы
+%*******************
+
+\RequirePackage{ifthen}
+
+% ссылки с черным цветом (для email)
+\newcommand{\Blhref}[3][black]{\href{#2}{\color{#1}{#3}}}%
+
+% список ключевых слов
+\newcommand{\kshpKwords}[2]{%
+    \vspace{1em}
+    \begin{center}
+    \begin{minipage}{0.9\textwidth}
+     \begingroup
+         \setstretch{1.0}
+         \begin{flushleft}
+         \noindent {\bfseries Ключевые слова}:
+         {#1\par}
+         \vspace{0.5em}
+         \begin{otherlanguage}{english}
+         \noindent {\bfseries Keywords}:
+         {#2\par}
+         \end{otherlanguage}
+         \end{flushleft}
+     \endgroup
+    \end{minipage}
+    \end{center}
+     \write\myoutput{Keywords\thesection: "#1"}
+}
+  
+\newcommand{\kshpAbstract}[2]{%
+    \vspace{0.5em}
+    \begin{center}
+    \begin{minipage}{0.9\textwidth}
+        \begingroup
+        \setstretch{1.0}
+            {\itshape #1\par}
+            \vspace{1em}
+            \begin{otherlanguage}{english}
+            {\itshape #2\par}
+            \end{otherlanguage}
+        \endgroup
+    \end{minipage}
+    \end{center}
+    \write\myoutput{Abstract\thesection: "#1"}
+}
+
+
+\newenvironment{kshpArticle}
+{\begin{refsection}\vspace{1em}
+ \begin{multicols}{2}}
+{\end{multicols}
+\FloatBarrier
+
+\begin{multicols}{2}
+\kshpBibSpace
+\begingroup
+\setstretch{1.0}
+\printbibliography[heading=kshpBibheading]
+\endgroup
+\end{multicols}
+\end{refsection}
+
+\kshpFooterWrite}
+
+
+% глава (рубрика)
+\newcommand{\kshpChapter}[1]{%
+    \chapter{#1}
+    \write\myoutput{Chapter\thechapter: "#1"}
+}
+
+% секция (статья)
+\newcommand\kshpSection[4]{%
+    \section[\bfseries#1~{\normalfont #2}]{#2}
+    \begin{center}
+    {\setstretch{1.1}\normalfont\Large\firamedium #4\par}
+    \end{center}
+    \setcounter{figure}{0}
+    \setcounter{table}{0}
+    \setcounter{equation}{0}
+    \setcounter{footnote}{0}
+    \write\myoutput{Authors\thesection: "#1"}
+    \write\myoutput{Article\thesection: "#2"}
+    \write\myoutput{First\thesection: \thepage}
+}
+
+
+
+% Автор, должность, организация, email    
+\newcommand{\kshpAut}[3]{%
+    \begin{flushleft}
+        {\bfseries #1}
+        #2\\ E-mail: \Blhref{mailto:#3}{#3}%
+        
+   
+    \end{flushleft}
+}
+
+\newcommand{\kshpAutEn}[2]{%
+    \begin{flushleft}
+        \begin{otherlanguage}{english}
+        {\bfseries #1}
+        #2
+        \end{otherlanguage}
+    \end{flushleft}
+}
+
+
+
+
+% опциональный УДК слева, DOI справа
+\newcommand{\kshpHeader}[1]{
+      {\noindent\sffamily УДК~#1\par}
+}
+
+% для мелких изображений в multicol
+\newenvironment{Figure}
+{\par\medskip\noindent\minipage{\linewidth}}
+{\endminipage\par\medskip}
+
+% отступ перед Биб. списком
+\newcommand{\kshpBibSpace}{%
+\vspace{1em}
+}
+
+
+% Оглавление русск. части
+\newcommand{\kshpPrintRuCont}{%
+    {\hspace{5mm}\filcenter\bfseries\MakeUppercase{Содержание}\par}
+    %\hyphenchar\font=-1 % disable hyphen
+    % \printcontents[<name>]{<prefix>}{<нач уровень>}[<глубина>]{<toc-code>}
+    {\hypersetup{linkcolor=black}\printcontents[partru]{ }{0}[1]
+    {}}
+    %\hyphenchar\font=`\- % reset hyphen
+    %\clearpage
+}
+
+% Оглавление англ. части
+\newcommand{\kshpPrintEnCont}{%
+    \pagestyle{empty}
+    {\hspace{5mm}\raggedright\Large\bfseries\MakeUppercase{Contents}\par}
+    %\hyphenchar\font=-1 % disable hyphen
+    {\hypersetup{linkcolor=black}\printcontents[parten]{ }{0}[1]
+    {}}
+    %\hyphenchar\font=`\- % reset hyphen
+}
+
+
+% удерживать pagestyle в Оглавлении
+\AtBeginDocument{\addtocontents{toc}{\protect\thispagestyle{empty}}}
+
+
+\newcommand{\kshpFooterWrite}{%
+    \immediate\write\myoutput{Last\thesection: \thepage}
+}
+
+
+
+%*******************
+% hyperref
+%*******************
+
+\RequirePackage[final,
+pdfauthor={\kshpNameK | \kshpNameO},
+pdftitle={\kshpYear{} №~\kshpMonth},luatex]{hyperref}
+
+
+\hypersetup{
+    unicode=true,
+    colorlinks=true,
+    linkcolor=colorBib,
+    citecolor=colorBib,
+    filecolor=black,
+    urlcolor=colorBib
+}
+
+\usepackage{url}
+\urlstyle{same}
