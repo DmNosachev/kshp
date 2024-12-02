@@ -74,7 +74,7 @@
             left=15mm,
             right=15mm]{geometry}
 
-
+\RequirePackage{changepage}
 
 %*******************
 % шрифты
@@ -219,7 +219,7 @@ ref = \theenumii.\arabic*}
 []
     
 \titleformat{\subsection}[block]
-{\color{black}\filcenter\bfseries\large}
+{\color{black}\filcenter\bfseries}
 {#1}
 {0pt}
 {}
@@ -281,12 +281,12 @@ ref = \theenumii.\arabic*}
 
 \newpagestyle{main}[\small]{
     \setheadrule{0.6pt}%
-    \sethead[{\sffamily\firamedium\footnotesize \kshpYear{}. № \kshpMonth}]%               even-left
-            [{\sffamily\firamedium\footnotesize \MakeUppercase{\kshpNameK \hspace{5mm} \kshpNameO} }]%   even-center
-            [{\sffamily\firamedium\footnotesize \thepage}]%                              even-right
-            {{\sffamily\firamedium\footnotesize \thepage}}%                              odd-left
-            {{\sffamily\firamedium\footnotesize \MakeUppercase{\kshpNameK \hspace{5mm} \kshpNameO} }}%   odd-center
-            {{\sffamily\firamedium\footnotesize \kshpYear{}. № \kshpMonth}}%               odd-right
+    \sethead[{\sffamily\firamedium\scriptsize \kshpYear{}. № \kshpMonth}]%               even-left
+            [{\sffamily\firamedium\scriptsize \MakeUppercase{\kshpNameK \hspace{5mm} \kshpNameO} }]%   even-center
+            [{\sffamily\firamedium\scriptsize \thepage}]%                              even-right
+            {{\sffamily\firamedium\scriptsize \thepage}}%                              odd-left
+            {{\sffamily\firamedium\scriptsize \MakeUppercase{\kshpNameK \hspace{5mm} \kshpNameO} }}%   odd-center
+            {{\sffamily\firamedium\scriptsize \kshpYear{}. № \kshpMonth}}%               odd-right
   }
 
 
@@ -382,7 +382,7 @@ sortcites=true,
 \newcommand{\kshpKwords}[2]{%
     \vspace{1em}
     \begin{center}
-    \begin{minipage}{0.9\textwidth}
+    \begin{adjustwidth}{1cm}{1cm}
      \begingroup
          \setstretch{1.0}
          \begin{flushleft}
@@ -395,7 +395,7 @@ sortcites=true,
          \end{otherlanguage}
          \end{flushleft}
      \endgroup
-    \end{minipage}
+    \end{adjustwidth}
     \end{center}
      \write\myoutput{Keywords\thesection: "#1"}
 }
@@ -403,16 +403,16 @@ sortcites=true,
 \newcommand{\kshpAbstract}[2]{%
     \vspace{0.5em}
     \begin{center}
-    \begin{minipage}{0.9\textwidth}
+    \begin{adjustwidth}{1cm}{1cm}
         \begingroup
         \setstretch{1.0}
-            {\itshape #1\par}
+            {\itshape\bfseries #1\par}
             \vspace{1em}
             \begin{otherlanguage}{english}
-            {\itshape #2\par}
+            {\itshape\bfseries #2\par}
             \end{otherlanguage}
         \endgroup
-    \end{minipage}
+    \end{adjustwidth}
     \end{center}
     \write\myoutput{Abstract\thesection: "#1"}
 }
@@ -462,18 +462,16 @@ sortcites=true,
 % Автор, должность, организация, email    
 \newcommand{\kshpAut}[3]{%
     \begin{flushleft}
-        {\bfseries #1}
-        #2\\ E-mail: \Blhref{mailto:#3}{#3}%
-        
-   
+        {\firamedium\small #1
+        #2\\ E-mail: \Blhref{mailto:#3}{#3}}
     \end{flushleft}
 }
 
 \newcommand{\kshpAutEn}[2]{%
     \begin{flushleft}
         \begin{otherlanguage}{english}
-        {\bfseries #1}
-        #2
+        {\firamedium\small #1
+        #2}
         \end{otherlanguage}
     \end{flushleft}
 }
